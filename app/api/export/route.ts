@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
+import { WG_INTERFACE } from "@/lib/wg-env";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const clientPath = path.join(os.homedir(), "/../etc/wireguard/client");
-    const wg0ConfigPath = path.join(os.homedir(), "/../etc/wireguard/wg0.conf");
+    const wg0ConfigPath = path.join(os.homedir(), `/../etc/wireguard/${WG_INTERFACE}.conf`);
     const wg0Config = await fs.readFile(wg0ConfigPath, "utf-8");
     const dirs = await fs.readdir(clientPath);
 

@@ -5,6 +5,7 @@ import os from "os";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { getServerIP } from "@/lib/server-ip";
+import { WG_INTERFACE, WG_PORT } from "@/lib/wg-env";
 
 const execAsync = promisify(exec);
 
@@ -54,14 +55,14 @@ DNS = ${config.DNS}
 [Peer]
 PublicKey = ${mainPublicKey}
 AllowedIPs = 0.0.0.0/0
-Endpoint = ${serverIP}:51194
+Endpoint = ${serverIP}:${WG_PORT}
 PersistentKeepalive = ${config.KeepAlive}`;
 
         await fs.writeFile(configPath, configContent, { mode: 0o600 });
 
         // Добавляем пир в WireGuard
         await execAsync(
-          `sudo wg set wg0 peer ${config.PublicKey} allowed-ips ${config.Address} persistent-keepalive ${config.KeepAlive}`
+          `sudo wg set ${WG_INTERFACE} peer ${config.PublicKey} allowed-ips ${config.Address} persistent-keepalive ${config.KeepAlive}`
         );
       } catch (error) {
         console.error(`Ошибка обработки конфигурации для ${config.Name}:`, error);

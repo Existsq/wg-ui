@@ -5,6 +5,7 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
 import { isValidProfileName } from '@/lib/validate-name';
+import { WG_INTERFACE } from '@/lib/wg-env';
 
 const execAsync = promisify(exec);
 
@@ -29,7 +30,7 @@ export async function DELETE(
     // Удаляем директорию через sudo
     await execAsync(`sudo rm -r "${dirPath}"`);
     // Удаляем пир из WireGuard
-    await execAsync(`sudo wg set wg0 peer "${publicKey}" remove`);
+    await execAsync(`sudo wg set ${WG_INTERFACE} peer "${publicKey}" remove`);
 
     return NextResponse.json({ success: true });
   } catch (error) {
