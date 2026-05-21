@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/components/general/theme-provider";
 import "@/styles/globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { GeistSans } from "geist/font/sans";
-import { ServerProvider } from "@/components/general/server-context";
+import { ConfigsProvider } from "@/components/general/configs-context";
 import DashboardHeader from "@/components/dashboard/header/dashboard-header";
 
 export const metadata: Metadata = {
@@ -19,18 +19,18 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <head />
       <body className={"min-h-screen bg-background font-sans antialiased"}>
-        <ServerProvider>
-          <DashboardHeader />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ConfigsProvider>
+            <DashboardHeader />
             {children}
-          </ThemeProvider>
-        </ServerProvider>
-        <Toaster />
+            <Toaster />
+          </ConfigsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -4,18 +4,10 @@ import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
+import { getServerIP } from '@/lib/server-ip';
+import { isValidProfileName } from '@/lib/validate-name';
 
 const execAsync = promisify(exec);
-
-async function getServerIP() {
-  try {
-    const { stdout } = await execAsync("curl -4 -s icanhazip.com");
-    return stdout.replace(/[\n\r]/g, '');
-  } catch (error) {
-    console.error('Ошибка при получении IPv4:', error);
-    throw new Error('Не удалось получить IPv4 сервера');
-  }
-}
 
 /**
  * Получает публичный ключ сервера из файла
@@ -88,9 +80,9 @@ export async function POST(request: Request) {
   try {
     const { profileName } = await request.json();
 
-    if (!profileName) {
+    if (!profileName || !isValidProfileName(profileName)) {
       return NextResponse.json(
-        { error: 'Имя профиля не указано' },
+        { error: 'Имя профиля не указано или содержит недопустимые символы' },
         { status: 400 }
       );
     }

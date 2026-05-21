@@ -11,7 +11,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { QrCodeIcon, Download, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Image from 'next/image';
@@ -83,7 +82,6 @@ export function ServerCard(props: ServerCardProps) {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [serverName, setServerName] = useState(props.name);
   const [newName, setNewName] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
     if (!isRenameDialogOpen) {
@@ -208,7 +206,7 @@ export function ServerCard(props: ServerCardProps) {
 
       setServerName(newName.trim());
       setIsRenameDialogOpen(false);
-      window.location.reload();
+      props.onUpdate();
 
     } catch (error) {
       toast({

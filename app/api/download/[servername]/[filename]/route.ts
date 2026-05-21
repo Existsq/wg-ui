@@ -2,11 +2,17 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
+import { isValidProfileName } from '@/lib/validate-name';
 
 export async function GET(
   request: Request,
   { params }: { params: { servername: string; filename: string } }
 ) {
+  const filenameBase = params.filename.replace(/\.conf$/, '');
+  if (!isValidProfileName(params.servername) || !isValidProfileName(filenameBase)) {
+    return NextResponse.json({ error: 'Недопустимое имя файла' }, { status: 400 });
+  }
+
   try {
     const configPath = path.join(os.homedir(), '/../etc/wireguard/client', params.servername, params.filename);
     

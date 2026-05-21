@@ -4,19 +4,9 @@ import path from "path";
 import os from "os";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { getServerIP } from "@/lib/server-ip";
 
 const execAsync = promisify(exec);
-
-// Функция получения IP-адреса сервера
-async function getServerIP() {
-  try {
-    const { stdout } = await execAsync("curl -4 -s icanhazip.com");
-    return stdout.trim();
-  } catch (error) {
-    console.error("Ошибка при получении IPv4:", error);
-    throw new Error("Не удалось получить IPv4 сервера");
-  }
-}
 
 export async function POST(request: Request) {
   try {

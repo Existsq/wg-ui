@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,12 +14,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { useConfigs } from "@/components/general/configs-context";
 
 export default function DashboardHeader() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
   const { toast } = useToast();
-  const router = useRouter();
+  const { fetchConfigs } = useConfigs();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreate = async () => {
@@ -36,9 +36,7 @@ export default function DashboardHeader() {
     try {
       const response = await fetch('/api/profiles/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profileName: newProfileName.trim() }),
       });
 
@@ -47,14 +45,10 @@ export default function DashboardHeader() {
         throw new Error(data.error || 'Ошибка при создании профиля');
       }
 
-      toast({
-        title: "Успешно",
-        description: "Профиль создан"
-      });
-
+      toast({ title: "Успешно", description: "Профиль создан" });
       setIsCreateDialogOpen(false);
       setNewProfileName('');
-      window.location.reload();
+      fetchConfigs();
 
     } catch (error) {
       toast({
@@ -67,10 +61,7 @@ export default function DashboardHeader() {
 
   const handleExport = async () => {
     try {
-      const response = await fetch('/api/export', {
-        method: 'GET',
-      });
-
+      const response = await fetch('/api/export');
       if (!response.ok) throw new Error('Ошибка при экспорте');
 
       const blob = await response.blob();
@@ -83,11 +74,8 @@ export default function DashboardHeader() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      toast({
-        title: "Успешно",
-        description: "Конфигурации экспортированы"
-      });
-    } catch (error) {
+      toast({ title: "Успешно", description: "Конфигурации экспортированы" });
+    } catch {
       toast({
         variant: "destructive",
         title: "Ошибка",
@@ -104,20 +92,12 @@ export default function DashboardHeader() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/import', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const response = await fetch('/api/import', { method: 'POST', body: formData });
       if (!response.ok) throw new Error('Ошибка при импорте');
 
-      toast({
-        title: "Успешно",
-        description: "Конфигурации импортированы"
-      });
-      
-      window.location.reload();
-    } catch (error) {
+      toast({ title: "Успешно", description: "Конфигурации импортированы" });
+      fetchConfigs();
+    } catch {
       toast({
         variant: "destructive",
         title: "Ошибка",
@@ -129,22 +109,18 @@ export default function DashboardHeader() {
   return (
     <header className="sticky top-0 flex h-fit items-center border bg-background z-[100] mx-6 mt-6 rounded-md">
       <nav className="grid grid-cols-2 gap-2 text-lg font-medium p-4 w-full space-y-1">
-        <Button 
-          className="w-full col-span-2" 
+        <Button
+          className="w-full col-span-2"
           variant="default"
           onClick={() => setIsCreateDialogOpen(true)}
         >
           Create new
         </Button>
-        <Button 
-          variant="secondary" 
-          className="w-full"
-          onClick={handleExport}
-        >
+        <Button variant="secondary" className="w-full" onClick={handleExport}>
           Export profiles
         </Button>
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           className="w-full"
           onClick={() => fileInputRef.current?.click()}
         >
@@ -179,19 +155,13 @@ export default function DashboardHeader() {
             />
           </div>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel 
+            <AlertDialogCancel
               className="mt-0 flex-1"
-              onClick={() => {
-                setNewProfileName('');
-                setIsCreateDialogOpen(false);
-              }}
+              onClick={() => { setNewProfileName(''); setIsCreateDialogOpen(false); }}
             >
               Отмена
             </AlertDialogCancel>
-            <AlertDialogAction 
-              className="mt-0 flex-1"
-              onClick={handleCreate}
-            >
+            <AlertDialogAction className="mt-0 flex-1" onClick={handleCreate}>
               Создать
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -199,4 +169,4 @@ export default function DashboardHeader() {
       </AlertDialog>
     </header>
   );
-} 
+}

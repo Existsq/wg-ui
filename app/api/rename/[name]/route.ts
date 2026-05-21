@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
+import { isValidProfileName } from '@/lib/validate-name';
 
 const execAsync = promisify(exec);
 
@@ -11,8 +12,16 @@ export async function PUT(
   request: Request,
   { params }: { params: { name: string } }
 ) {
+  if (!isValidProfileName(params.name)) {
+    return NextResponse.json({ error: 'Недопустимое имя профиля' }, { status: 400 });
+  }
+
   try {
     const { newName } = await request.json();
+
+    if (!isValidProfileName(newName)) {
+      return NextResponse.json({ error: 'Недопустимое новое имя профиля' }, { status: 400 });
+    }
     
     const oldDirPath = path.join(os.homedir(), '/../etc/wireguard/client', params.name);
     const oldConfigPath = path.join(oldDirPath, `${params.name}.conf`);
